@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "moduleResolution": "node",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "lib": [
+      "esnext"
+    ],
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "declaration": true,
+    "newLine": "lf",
+    "outDir": "lib"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib"
+  ]
+}
+

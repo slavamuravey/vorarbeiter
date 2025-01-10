@@ -1,0 +1,31 @@
+{
+  "name": "vorarbeiter",
+  "version": "1.0.0",
+  "description": "A simple service container",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "example": "node -r ts-node/register example/example.ts"
+  },
+  "keywords": [
+    "inversion of control",
+    "service container",
+    "dependency injection"
+  ],
+  "author": {
+    "name": "Viacheslav Muravyev",
+    "email": "slavamuravey@mail.ru",
+    "url": "https://github.com/slavamuravey/vorarbeiter"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "lib"
+  ]
+}
