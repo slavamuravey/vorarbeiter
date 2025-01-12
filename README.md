@@ -28,7 +28,7 @@ class DriverImpl implements Driver {
 ```
 class CarFactory implements ServiceFactory {
   create(container: ServiceContainer): CarImpl {
-    const driver = container.get("driver")
+    const driver = container.get("driver");
     return new CarImpl(driver);
   }
 }
