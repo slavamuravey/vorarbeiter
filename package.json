@@ -1,6 +1,6 @@
 {
   "name": "vorarbeiter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/slavamuravey/vorarbeiter",
   "description": "A simple service container",
   "main": "lib/index.js",
