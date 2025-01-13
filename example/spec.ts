@@ -1,15 +1,10 @@
 import type { ServiceSpec } from "../lib";
 import { CarFactory } from "./factory/car";
-import { DriverFactory } from "./factory/driver";
+import { DriverImpl } from "./service/impl/driver";
 
 const spec: ServiceSpec = new Map();
 
-spec.set("car", {
-  factory: new CarFactory()
-});
-
-spec.set("driver", {
-  factory: new DriverFactory()
-});
+spec.set("car", new CarFactory());
+spec.set("driver", () => new DriverImpl());
 
 export { spec };

@@ -32,36 +32,24 @@ class CarFactory implements ServiceFactory {
     return new CarImpl(driver);
   }
 }
-
-class DriverFactory implements ServiceFactory {
-  create(container: ServiceContainer): DriverImpl {
-    return new DriverImpl();
-  }
-}
 ```
 
 3. Create services Specification:
-
 ```
 const spec = new Map();
 
-spec.set("car", {
-    factory: new CarFactory()
-});
-
-spec.set("driver", {
-    factory: new DriverFactory()
-});
+spec.set("car", new CarFactory());
+spec.set("driver", () => new DriverImpl());
 ```
+If creating a service is trivial, as for `driver`, we can simply pass a function as a factory.
+As for class based factory we can pass `ServiceContainer` as a function parameter.
 
 4. Create Service Container with this Specification:
-
 ```
 const serviceContainer = new ServiceContainer(spec);
 ```
 
 5. Get some service and call its method:
-
 ```
 const car: Car = serviceContainer.get("car");
 

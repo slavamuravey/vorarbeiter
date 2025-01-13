@@ -1,8 +1,8 @@
-export interface ServiceFactory {
+export type ServiceFactory = {
   create(container: ServiceContainer): any;
-}
-
-export type ServiceSpec = Map<string, { factory: ServiceFactory }>;
+};
+export type ServiceFactoryFunction = (container: ServiceContainer) => any;
+export type ServiceSpec = Map<string, ServiceFactory | ServiceFactoryFunction>;
 
 export class ServiceContainer {
   private spec: ServiceSpec;
@@ -21,7 +21,8 @@ export class ServiceContainer {
       throw new Error(`unknown service "${name}".`);
     }
 
-    const service = this.spec.get(name)!.factory.create(this);
+    const factory = this.spec.get(name)!;
+    const service = typeof factory === "function" ? factory(this) : factory.create(this);
 
     this.services.set(name, service);
 
