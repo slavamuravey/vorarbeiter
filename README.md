@@ -1,7 +1,7 @@
 ### A simple service container
 
 1. Create some services:
-```
+```typescript
 interface Car {
   getDriverName(): string;
 }
@@ -25,7 +25,7 @@ class DriverImpl implements Driver {
 ```
 
 2. Explain to Service Container how to create services, use factories for this:
-```
+```typescript
 class CarFactory implements ServiceFactory {
   create(container: ServiceContainer): CarImpl {
     const driver = container.get("driver");
@@ -35,7 +35,7 @@ class CarFactory implements ServiceFactory {
 ```
 
 3. Create services Specification:
-```
+```typescript
 const spec = new Map();
 
 spec.set("car", new CarFactory());
@@ -45,12 +45,12 @@ If creating a service is trivial, as for `driver`, we can simply pass a function
 As for class based factory we can pass `ServiceContainer` as a function parameter.
 
 4. Create Service Container with this Specification:
-```
+```typescript
 const serviceContainer = new ServiceContainer(spec);
 ```
 
 5. Get some service and call its method:
-```
+```typescript
 const car: Car = serviceContainer.get("car");
 
 console.log(car.getDriverName());
