@@ -80,7 +80,7 @@ console.log(serviceInstance1 === serviceInstance2); // true
 
 - Scoped
 
-Sometimes we need to have service uniqueness on within a specific scope, for example, within one user request.
+Sometimes we need to have service uniqueness within a specific scope, for example, within one user request.
 To do that we should specify the _Context Resolver_ when configure _Service Specification_. Resolving result of the _Context Resolver_ should be **any object**.
 To imitate situation when we have two different contexts we can use AsyncLocalStorage from "node:async_hooks" package.
 
