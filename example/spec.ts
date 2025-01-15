@@ -1,10 +1,12 @@
-import type { ServiceSpec } from "../lib";
+import { ServiceSpec } from "../lib";
 import { CarFactory } from "./factory/car";
 import { DriverImpl } from "./service/impl/driver";
+import { asyncLocalStorage } from "./context";
 
-const spec: ServiceSpec = new Map();
+const spec: ServiceSpec = new ServiceSpec();
 
 spec.set("car", new CarFactory());
 spec.set("driver", () => new DriverImpl());
+spec.set("myScopedService", () => ({ serviceName: "Awesome service" }), () => asyncLocalStorage.getStore());
 
-export { spec };
+export { spec, asyncLocalStorage };

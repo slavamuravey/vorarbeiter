@@ -7,7 +7,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "example": "node -r ts-node/register example/example.ts"
+    "example": "node --inspect -r ts-node/register example/example.ts"
   },
   "keywords": [
     "inversion of control",
