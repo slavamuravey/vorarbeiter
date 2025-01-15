@@ -87,7 +87,11 @@ To imitate situation when we have two different contexts we can use AsyncLocalSt
 Example:
 ```typescript
 const asyncLocalStorage = new AsyncLocalStorage<object>();
-spec.set("myScopedService", () => ({ serviceName: "Awesome service" }), () => asyncLocalStorage.getStore());
+spec.set(
+  "myScopedService",
+  () => ({ serviceName: "Awesome service" }),
+  () => asyncLocalStorage.getStore()
+);
 
 let scopedService1;
 {
