@@ -1,11 +1,12 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { spec } from "./spec";
 import { ServiceContainer } from "../lib";
 import { Car } from "./service/car";
-import { asyncLocalStorage } from "./context";
 
 const serviceContainer = new ServiceContainer(spec);
 
 const car: Car = serviceContainer.get("car");
+const ctx: AsyncLocalStorage<any> = serviceContainer.get("ctx");
 
 console.log(car.getDriverName());
 
@@ -13,7 +14,7 @@ let scopedService1;
 {
   let scopedService2;
 
-  asyncLocalStorage.run({}, () => {
+  ctx.run({}, () => {
     scopedService1 = serviceContainer.get("myScopedService");
     scopedService2 = serviceContainer.get("myScopedService");
   });
@@ -23,7 +24,7 @@ let scopedService1;
 {
   let scopedService3;
   let scopedService4;
-  asyncLocalStorage.run({}, () => {
+  ctx.run({}, () => {
     scopedService3 = serviceContainer.get("myScopedService");
     scopedService4 = serviceContainer.get("myScopedService");
   });

@@ -5,9 +5,9 @@ export interface ServiceDefinition {
     contextResolver: ContextResolverDefinition;
 }
 export interface ContextResolver {
-    resolveContext(): object;
+    resolveContext(container: ServiceContainer): object;
 }
-export type ContextResolverFunction = () => object;
+export type ContextResolverFunction = (container: ServiceContainer) => object;
 export interface ServiceFactory {
     create(container: ServiceContainer): any;
 }

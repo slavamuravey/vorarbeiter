@@ -7,10 +7,10 @@ export interface ServiceDefinition {
 }
 
 export interface ContextResolver {
-  resolveContext(): object;
+  resolveContext(container: ServiceContainer): object;
 }
 
-export type ContextResolverFunction = () => object;
+export type ContextResolverFunction = (container: ServiceContainer) => object;
 
 export interface ServiceFactory {
   create(container: ServiceContainer): any;
@@ -67,7 +67,7 @@ export class ServiceContainer {
     const definition = this.spec.get(name);
     const { contextResolver } = definition;
 
-    return typeof contextResolver === "function" ? contextResolver() : contextResolver.resolveContext();
+    return typeof contextResolver === "function" ? contextResolver(this) : contextResolver.resolveContext(this);
   }
 }
 
