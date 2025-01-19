@@ -126,6 +126,7 @@ test("retrieving of unknown service throws exception", () => {
       serviceContainer.get("asdf2qwefdsvc23e");
     },
     {
+      id: "asdf2qwefdsvc23e",
       name: "UnknownServiceError",
       message: 'unknown service "asdf2qwefdsvc23e"',
     },
@@ -147,6 +148,7 @@ test("circular dependencies detected", () => {
       serviceContainer.get("serviceA");
     },
     {
+      id: "serviceA",
       name: "ServiceCircularReferenceError",
       message: "circular dependency detected: serviceA -> serviceB -> serviceC -> serviceA",
     },

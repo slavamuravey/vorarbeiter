@@ -60,7 +60,7 @@ export class ServiceContainerImpl implements ServiceContainer {
 
   private createService(id: string) {
     if (this.loading.has(id)) {
-      throw new ServiceCircularReferenceError([...this.loading.values(), id]);
+      throw new ServiceCircularReferenceError(id, [...this.loading.values(), id]);
     }
     const definition = this.spec.get(id)!;
     const { factory, injector } = definition;
@@ -189,14 +189,14 @@ export class TransientContextResolver implements ContextResolver {
 }
 
 export class UnknownServiceError extends Error {
-  constructor(id: string) {
+  constructor(public readonly id: string) {
     super(`unknown service "${id}"`);
     this.name = "UnknownServiceError";
   }
 }
 
 export class ServiceCircularReferenceError extends Error {
-  constructor(public readonly referenceChain: string[]) {
+  constructor(public readonly id: string, public readonly referenceChain: string[]) {
     super(`circular dependency detected: ${referenceChain.join(" -> ")}`);
     this.name = "ServiceCircularReferenceError";
   }

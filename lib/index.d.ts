@@ -76,9 +76,11 @@ export declare class TransientContextResolver implements ContextResolver {
     resolveContext(container: ServiceContainer): Context;
 }
 export declare class UnknownServiceError extends Error {
+    readonly id: string;
     constructor(id: string);
 }
 export declare class ServiceCircularReferenceError extends Error {
+    readonly id: string;
     readonly referenceChain: string[];
-    constructor(referenceChain: string[]);
+    constructor(id: string, referenceChain: string[]);
 }
