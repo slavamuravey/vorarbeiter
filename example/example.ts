@@ -1,9 +1,9 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { spec } from "./spec";
-import { ServiceContainer } from "../lib";
+import { createServiceContainer } from "../lib";
 import { Car } from "./service/car";
 
-const serviceContainer = new ServiceContainer(spec);
+const serviceContainer = createServiceContainer(spec);
 
 const car: Car = serviceContainer.get("car");
 const ctx: AsyncLocalStorage<any> = serviceContainer.get("ctx");
@@ -31,3 +31,6 @@ let scopedService1;
   console.log(scopedService1, scopedService3, scopedService1 === scopedService3);
   console.log(scopedService3, scopedService4, scopedService3 === scopedService4);
 }
+
+console.log("Get driver name from property set with property injection:", serviceContainer.get("injectorService").car.getDriverName());
+console.log("Get driver name from property set with setter injection:", serviceContainer.get("injectorService").driver.getName());

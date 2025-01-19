@@ -1,6 +1,13 @@
-### A simple service container
+<p align="center">
+  <img
+      alt="Go CORS middleware"
+      src="https://private-user-images.githubusercontent.com/3774019/404690571-c04c706f-067b-4ddd-be18-7274f90d5158.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzczMTYzNDQsIm5iZiI6MTczNzMxNjA0NCwicGF0aCI6Ii8zNzc0MDE5LzQwNDY5MDU3MS1jMDRjNzA2Zi0wNjdiLTRkZGQtYmUxOC03Mjc0ZjkwZDUxNTgucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MDExOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTAxMTlUMTk0NzI0WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9OTI5NDUyZjE1MGFiNjI3MDA0YWZjZGUwYmU3ZTk4ODczYTBmY2ZjZDJjMGIxMjIyYTkzYzVjZmNiYTRmNDgxNSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.KXu16kN98ipMj8fM0WOTziWOA7ADR6UnxS4gyLqZVfQ"
+  />
+</p>
 
-#### Basic usage
+## A simple service container
+
+### Basic usage
 
 1. Create some services:
 ```typescript
@@ -36,19 +43,27 @@ class CarFactory implements ServiceFactory {
 }
 ```
 
-3. Create services _Service Specification_:
+3. Create _Service Specification_:
+
 ```typescript
-const spec = new ServiceSpec();
+import { createServiceSpecBuilder } from "vorarbeiter";
+
+const specBuilder = createServiceSpecBuilder();
 
 spec.set("car", new CarFactory());
 spec.set("driver", () => new DriverImpl());
+
+const spec = specBuilder.getServiceSpec();
 ```
 If creating a service is trivial, as for `driver`, we can simply pass a function as a factory.
 As for class based factory we can pass `ServiceContainer` as a function parameter.
 
 4. Create _Service Container_ with this _Service Specification_:
+
 ```typescript
-const serviceContainer = new ServiceContainer(spec);
+import { createServiceContainer } from "vorarbeiter";
+
+const serviceContainer = createServiceContainer(spec);
 ```
 
 5. Get some service and call its method:
@@ -60,9 +75,9 @@ console.log(car.getDriverName());
 
 6. Get string "Michael Schumacher".
 
-#### Service scope
+### Service scope
 
-- Shared
+#### Shared
 
 By default, services have global scope. It means that the same service will be shared across whole application.
 
@@ -78,7 +93,7 @@ serviceInstance2 = serviceContainer.get("myService");
 console.log(serviceInstance1 === serviceInstance2); // true
 ```
 
-- Scoped
+#### Scoped
 
 Sometimes we need to have service uniqueness within a specific scope, for example, within one user request.
 To do that we should specify the _Context Resolver_ when configure _Service Specification_. Resolving result of the _Context Resolver_ should be **any object**.
@@ -87,11 +102,9 @@ To imitate situation when we have two different contexts we can use AsyncLocalSt
 Example:
 ```typescript
 const asyncLocalStorage = new AsyncLocalStorage<object>();
-spec.set(
-  "myScopedService",
-  () => ({ serviceName: "Awesome service" }),
-  () => asyncLocalStorage.getStore()
-);
+specBuilder
+  .set("myScopedService", () => ({ serviceName: "Awesome service" }))
+  .scoped(() => asyncLocalStorage.getStore());
 
 let scopedService1;
 {
@@ -118,5 +131,27 @@ let scopedService1;
 // Output:
 // true
 // false
-// true 
+// true
 ```
+
+#### Injection after service creation
+
+The most common type of injection is constructor injection. 
+This type of injection occurs when creating service.
+But sometimes we want to inject after the service has been created.
+For this we can specify _Service Injector_ for the service:
+```typescript
+specBuilder.set("injectorService", () => {
+  return new class {
+    car!: Car;
+    driver!: Driver;
+    setDriver(driver: Driver) {
+      this.driver = driver;
+    }
+  };
+}).withInjector((service, container) => {
+  service.car = container.get("car");
+  service.setDriver(container.get("driver"));
+});
+```
+This way we can perform property and setter injection.

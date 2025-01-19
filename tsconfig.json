@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "module": "none",
     "moduleResolution": "node",
     "target": "es2017",
