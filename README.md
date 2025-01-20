@@ -50,8 +50,8 @@ import { createServiceSpecBuilder } from "vorarbeiter";
 
 const specBuilder = createServiceSpecBuilder();
 
-spec.set("car", new CarFactory());
-spec.set("driver", () => new DriverImpl());
+specBuilder.set("car", new CarFactory());
+specBuilder.set("driver", () => new DriverImpl());
 
 const spec = specBuilder.getServiceSpec();
 ```
@@ -105,6 +105,8 @@ const asyncLocalStorage = new AsyncLocalStorage<object>();
 specBuilder
   .set("myScopedService", () => ({ serviceName: "Awesome service" }))
   .scoped(() => asyncLocalStorage.getStore());
+
+const serviceContainer = createServiceContainer(specBuilder.getServiceSpec());
 
 let scopedService1;
 {
