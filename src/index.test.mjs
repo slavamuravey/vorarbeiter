@@ -154,3 +154,17 @@ test("circular dependencies detected", () => {
     },
   );
 });
+
+test("circular dependencies can be prevented with setter or property injection", () => {
+  const specBuilder = createServiceSpecBuilder();
+  specBuilder.set("head", (container) => ({ head: "head", tail: container.get("tail").tail }));
+  specBuilder.set("tail", () => ({ head: undefined, tail: "tail" })).withInjector((service, container) => {
+    service.head = container.get("head").head;
+  });
+
+  const spec = specBuilder.getServiceSpec();
+
+  const serviceContainer = createServiceContainer(spec);
+
+  assert.deepEqual(serviceContainer.get("tail"), { head: "head", tail: "tail" });
+});

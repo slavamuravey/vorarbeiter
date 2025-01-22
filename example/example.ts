@@ -34,3 +34,5 @@ let scopedService1;
 
 console.log("Get driver name from property set with property injection:", serviceContainer.get("injectorService").car.getDriverName());
 console.log("Get driver name from property set with setter injection:", serviceContainer.get("injectorService").driver.getName());
+
+console.log(serviceContainer.get("tail"));

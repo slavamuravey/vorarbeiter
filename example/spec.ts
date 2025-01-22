@@ -26,6 +26,11 @@ specBuilder.set("injectorService", () => {
   service.setDriver(container.get("driver"));
 });
 
-const spec = specBuilder.getServiceSpec()
+specBuilder.set("head", (container) => ({ head: "head", tail: container.get("tail").tail }));
+specBuilder.set("tail", () => ({ head: undefined, tail: "tail" })).withInjector((service, container) => {
+  service.head = container.get("head").head;
+});
+
+const spec = specBuilder.getServiceSpec();
 
 export { spec };

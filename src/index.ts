@@ -69,11 +69,11 @@ export class ServiceContainerImpl implements ServiceContainer {
     const service = typeof factory === "function" ? factory(this) : factory.create(this);
     this.loading.delete(id);
 
+    this.storeService(id, service);
+
     if (injector) {
       typeof injector === "function" ? injector(service, this) : injector.inject(service, this);
     }
-
-    this.storeService(id, service);
 
     return service;
   }
