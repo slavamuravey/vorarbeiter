@@ -1,4 +1,3 @@
-import resolve from "@rollup/plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -16,7 +15,6 @@ const createConfig = format => {
       sourcemap: true
     },
     plugins: [
-      resolve(),
       isProduction && terser(),
     ]
   };
