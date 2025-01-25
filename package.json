@@ -6,9 +6,12 @@
   "source": "src/index.ts",
   "exports": {
     "require": "./dist/index.js",
-    "import": "./es/index.js"
+    "import": "./es/index.js",
+    "umd": "./dist/vorarbeiter.umd.min.js"
   },
   "main": "dist/index.js",
+  "umd:main": "dist/vorarbeiter.umd.min.js",
+  "unpkg": "dist/vorarbeiter.umd.min.js",
   "module": "es/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
