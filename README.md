@@ -7,6 +7,12 @@
 
 ## A simple service container
 
+### Installation
+
+```shell
+npm install vorarbeiter
+```
+
 ### Basic usage
 
 1. Create some services:
