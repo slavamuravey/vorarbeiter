@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "none",
+    "target": "es6",
+    "module": "esnext",
     "moduleResolution": "node",
-    "target": "es2017",
     "esModuleInterop": true,
     "lib": [
       "esnext"
@@ -11,13 +11,13 @@
     "alwaysStrict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "declaration": true,
     "newLine": "lf",
     "outDir": "lib"
   },
   "include": [
-    "src/**/*"
+    "src"
   ],
   "exclude": [
     "node_modules",

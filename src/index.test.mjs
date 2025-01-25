@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, it, test } from "node:test";
-import { createServiceContainer, createServiceSpecBuilder } from "../lib/index.js";
+import { createServiceContainer, createServiceSpecBuilder } from "../dist/index.js";
 
 test("service container resolves dependencies", () => {
   const specBuilder = createServiceSpecBuilder();

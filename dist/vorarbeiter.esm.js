@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServiceCircularReferenceError = exports.UnknownServiceError = exports.TransientContextResolver = exports.SharedContextResolver = exports.createServiceSpecBuilder = exports.ServiceSpecBuilderImpl = exports.ServiceDefinitionBuilderImpl = exports.createServiceContainer = exports.ServiceContainerImpl = void 0;
 class ServiceContainerImpl {
     constructor(spec) {
         this.spec = spec;
@@ -50,9 +47,7 @@ class ServiceContainerImpl {
         return typeof contextResolver === "function" ? contextResolver(this) : contextResolver.resolveContext(this);
     }
 }
-exports.ServiceContainerImpl = ServiceContainerImpl;
 const createServiceContainer = (spec) => new ServiceContainerImpl(spec);
-exports.createServiceContainer = createServiceContainer;
 class ServiceDefinitionBuilderImpl {
     constructor(factory) {
         this.factory = factory;
@@ -82,7 +77,6 @@ class ServiceDefinitionBuilderImpl {
         };
     }
 }
-exports.ServiceDefinitionBuilderImpl = ServiceDefinitionBuilderImpl;
 class ServiceSpecBuilderImpl {
     constructor() {
         this.defBuilders = new Map();
@@ -100,9 +94,7 @@ class ServiceSpecBuilderImpl {
         return spec;
     }
 }
-exports.ServiceSpecBuilderImpl = ServiceSpecBuilderImpl;
 const createServiceSpecBuilder = () => new ServiceSpecBuilderImpl();
-exports.createServiceSpecBuilder = createServiceSpecBuilder;
 class SharedContextResolver {
     constructor() {
         this.context = Object.create(null);
@@ -111,13 +103,11 @@ class SharedContextResolver {
         return this.context;
     }
 }
-exports.SharedContextResolver = SharedContextResolver;
 class TransientContextResolver {
     resolveContext(container) {
         return Object.create(null);
     }
 }
-exports.TransientContextResolver = TransientContextResolver;
 class UnknownServiceError extends Error {
     constructor(id) {
         super(`unknown service "${id}"`);
@@ -125,7 +115,6 @@ class UnknownServiceError extends Error {
         this.name = "UnknownServiceError";
     }
 }
-exports.UnknownServiceError = UnknownServiceError;
 class ServiceCircularReferenceError extends Error {
     constructor(id, referenceChain) {
         super(`circular dependency detected: ${referenceChain.join(" -> ")}`);
@@ -134,4 +123,6 @@ class ServiceCircularReferenceError extends Error {
         this.name = "ServiceCircularReferenceError";
     }
 }
-exports.ServiceCircularReferenceError = ServiceCircularReferenceError;
+
+export { ServiceCircularReferenceError, ServiceContainerImpl, ServiceDefinitionBuilderImpl, ServiceSpecBuilderImpl, SharedContextResolver, TransientContextResolver, UnknownServiceError, createServiceContainer, createServiceSpecBuilder };
+//# sourceMappingURL=vorarbeiter.esm.js.map
