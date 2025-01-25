@@ -13,15 +13,10 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": true,
-    "newLine": "lf",
-    "outDir": "lib"
+    "newLine": "lf"
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "lib"
   ]
 }
 
