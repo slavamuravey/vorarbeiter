@@ -25,7 +25,7 @@ export interface ServiceSpec {
     has(id: ServiceId): boolean;
 }
 export interface ServiceContainer {
-    get<T>(id: ServiceId): T | never;
+    get<T>(id: ServiceId): T;
     has(id: ServiceId): boolean;
 }
 export declare class ServiceContainerImpl implements ServiceContainer {
@@ -33,7 +33,7 @@ export declare class ServiceContainerImpl implements ServiceContainer {
     private services;
     private loading;
     constructor(spec: ServiceSpec);
-    get<T>(id: ServiceId): T | never;
+    get<T>(id: ServiceId): T;
     has(id: ServiceId): boolean;
     private createService;
     private storeService;

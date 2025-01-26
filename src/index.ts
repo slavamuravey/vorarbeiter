@@ -38,7 +38,7 @@ export interface ServiceSpec {
 }
 
 export interface ServiceContainer {
-  get<T>(id: ServiceId): T | never;
+  get<T>(id: ServiceId): T;
   has(id: ServiceId): boolean;
 }
 
@@ -48,7 +48,7 @@ export class ServiceContainerImpl implements ServiceContainer {
 
   constructor(private readonly spec: ServiceSpec) {}
 
-  get<T>(id: ServiceId): T | never {
+  get<T>(id: ServiceId): T {
     if (!this.spec.has(id)) {
       throw new UnknownServiceError(id);
     }
