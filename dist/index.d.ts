@@ -19,21 +19,22 @@ export interface ServiceDefinition {
     contextResolver: ContextResolverDefinition;
     injector?: ServiceInjectorDefinition;
 }
+export type ServiceId<T = unknown> = string | symbol;
 export interface ServiceSpec {
-    get(id: string): ServiceDefinition | undefined;
-    has(id: string): boolean;
+    get(id: ServiceId): ServiceDefinition | undefined;
+    has(id: ServiceId): boolean;
 }
 export interface ServiceContainer {
-    get(id: string): any;
-    has(id: string): boolean;
+    get(id: ServiceId): any;
+    has(id: ServiceId): boolean;
 }
 export declare class ServiceContainerImpl implements ServiceContainer {
     private readonly spec;
     private services;
     private loading;
     constructor(spec: ServiceSpec);
-    get(id: string): any;
-    has(id: string): boolean;
+    get(id: ServiceId): any;
+    has(id: ServiceId): boolean;
     private createService;
     private storeService;
     private retrieveService;
@@ -59,12 +60,12 @@ export declare class ServiceDefinitionBuilderImpl implements ServiceDefinitionBu
     getServiceDefinition(): ServiceDefinition;
 }
 export interface ServiceSpecBuilder {
-    set(id: string, factory: ServiceFactoryDefinition): void;
+    set(id: ServiceId, factory: ServiceFactoryDefinition): void;
     getServiceSpec(): ServiceSpec;
 }
 export declare class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     private defBuilders;
-    set(id: string, factory: ServiceFactoryDefinition): ServiceDefinitionBuilderImpl;
+    set(id: ServiceId, factory: ServiceFactoryDefinition): ServiceDefinitionBuilderImpl;
     getServiceSpec(): ServiceSpec;
 }
 export declare const createServiceSpecBuilder: () => ServiceSpecBuilderImpl;
@@ -76,11 +77,11 @@ export declare class TransientContextResolver implements ContextResolver {
     resolveContext(container: ServiceContainer): Context;
 }
 export declare class UnknownServiceError extends Error {
-    readonly id: string;
-    constructor(id: string);
+    readonly id: ServiceId;
+    constructor(id: ServiceId);
 }
 export declare class ServiceCircularReferenceError extends Error {
-    readonly id: string;
-    readonly referenceChain: string[];
-    constructor(id: string, referenceChain: string[]);
+    readonly id: ServiceId;
+    readonly referenceChain: ServiceId[];
+    constructor(id: ServiceId, referenceChain: ServiceId[]);
 }

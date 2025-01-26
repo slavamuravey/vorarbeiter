@@ -9,7 +9,7 @@ const contextResolver: ContextResolverDefinition = container => container.get("c
 
 const specBuilder = createServiceSpecBuilder();
 
-specBuilder.set("car", new CarFactory());
+specBuilder.set(Symbol.for("car"), new CarFactory());
 specBuilder.set("driver", () => new DriverImpl());
 specBuilder.set("myScopedService", () => ({ serviceName: "Awesome service" })).scoped(contextResolver);
 specBuilder.set("ctx", () => new AsyncLocalStorage<Context>());
@@ -22,7 +22,7 @@ specBuilder.set("injectorService", () => {
     }
   };
 }).withInjector((service, container) => {
-  service.car = container.get("car");
+  service.car = container.get(Symbol.for("car"));
   service.setDriver(container.get("driver"));
 });
 

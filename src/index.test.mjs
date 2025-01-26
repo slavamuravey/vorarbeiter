@@ -1,6 +1,11 @@
 import assert from "node:assert";
 import { describe, it, test } from "node:test";
-import { createServiceContainer, createServiceSpecBuilder } from "../dist/index.js";
+import {
+  createServiceContainer,
+  createServiceSpecBuilder,
+  ServiceCircularReferenceError,
+  UnknownServiceError
+} from "../dist/index.js";
 
 test("service container resolves dependencies", () => {
   const specBuilder = createServiceSpecBuilder();
@@ -167,4 +172,21 @@ test("circular dependencies can be prevented with setter or property injection",
   const serviceContainer = createServiceContainer(spec);
 
   assert.deepEqual(serviceContainer.get("tail"), { head: "head", tail: "tail" });
+});
+
+test("symbol service identifiers convert to strings correctly", () => {
+  const serviceId = Symbol.for("someService");
+  const referenceChain = [Symbol.for("someService"), Symbol.for("someAnotherService"), Symbol.for("someService")];
+  const serviceCircularReferenceError = new ServiceCircularReferenceError(serviceId, referenceChain);
+  const unknownServiceError = new UnknownServiceError(serviceId);
+
+  assert.equal(
+    unknownServiceError.message,
+    'unknown service "Symbol(someService)"'
+  );
+
+  assert.equal(
+    serviceCircularReferenceError.message,
+    "circular dependency detected: Symbol(someService) -> Symbol(someAnotherService) -> Symbol(someService)"
+  );
 });

@@ -110,14 +110,14 @@ export class TransientContextResolver {
 }
 export class UnknownServiceError extends Error {
     constructor(id) {
-        super(`unknown service "${id}"`);
+        super(`unknown service "${String(id)}"`);
         this.id = id;
         this.name = "UnknownServiceError";
     }
 }
 export class ServiceCircularReferenceError extends Error {
     constructor(id, referenceChain) {
-        super(`circular dependency detected: ${referenceChain.join(" -> ")}`);
+        super(`circular dependency detected: ${referenceChain.map(String).join(" -> ")}`);
         this.id = id;
         this.referenceChain = referenceChain;
         this.name = "ServiceCircularReferenceError";

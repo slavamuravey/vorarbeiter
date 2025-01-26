@@ -5,7 +5,7 @@ import { Car } from "./service/car";
 
 const serviceContainer = createServiceContainer(spec);
 
-const car: Car = serviceContainer.get("car");
+const car: Car = serviceContainer.get(Symbol.for("car"));
 const ctx: AsyncLocalStorage<any> = serviceContainer.get("ctx");
 
 console.log(car.getDriverName());

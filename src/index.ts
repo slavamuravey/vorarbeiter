@@ -30,23 +30,25 @@ export interface ServiceDefinition {
   injector?: ServiceInjectorDefinition;
 }
 
+export type ServiceId<T = unknown> = string | symbol;
+
 export interface ServiceSpec {
-  get(id: string): ServiceDefinition | undefined;
-  has(id: string): boolean;
+  get(id: ServiceId): ServiceDefinition | undefined;
+  has(id: ServiceId): boolean;
 }
 
 export interface ServiceContainer {
-  get(id: string): any;
-  has(id: string): boolean;
+  get(id: ServiceId): any;
+  has(id: ServiceId): boolean;
 }
 
 export class ServiceContainerImpl implements ServiceContainer {
-  private services = new Map<string, WeakMap<Context, any>>();
-  private loading = new Set<string>();
+  private services = new Map<ServiceId, WeakMap<Context, any>>();
+  private loading = new Set<ServiceId>();
 
   constructor(private readonly spec: ServiceSpec) {}
 
-  get(id: string): any {
+  get(id: ServiceId): any {
     if (!this.spec.has(id)) {
       throw new UnknownServiceError(id);
     }
@@ -54,11 +56,11 @@ export class ServiceContainerImpl implements ServiceContainer {
     return this.retrieveService(id) ?? this.createService(id);
   }
 
-  has(id: string): boolean {
+  has(id: ServiceId): boolean {
     return this.services.has(id);
   }
 
-  private createService(id: string) {
+  private createService(id: ServiceId) {
     if (this.loading.has(id)) {
       throw new ServiceCircularReferenceError(id, [...this.loading.values(), id]);
     }
@@ -78,7 +80,7 @@ export class ServiceContainerImpl implements ServiceContainer {
     return service;
   }
 
-  private storeService(id: string, service: any) {
+  private storeService(id: ServiceId, service: any) {
     const ctx = this.resolveContext(id);
 
     if (!this.services.has(id)) {
@@ -88,13 +90,13 @@ export class ServiceContainerImpl implements ServiceContainer {
     this.services.get(id)!.set(ctx, service);
   }
 
-  private retrieveService(id: string) {
+  private retrieveService(id: ServiceId) {
     const ctx = this.resolveContext(id);
 
     return this.services.get(id)?.get(ctx);
   }
 
-  private resolveContext(id: string) {
+  private resolveContext(id: ServiceId) {
     const definition = this.spec.get(id)!;
     const { contextResolver } = definition;
 
@@ -148,14 +150,14 @@ export class ServiceDefinitionBuilderImpl implements ServiceDefinitionBuilder {
 }
 
 export interface ServiceSpecBuilder {
-  set(id: string, factory: ServiceFactoryDefinition): void;
+  set(id: ServiceId, factory: ServiceFactoryDefinition): void;
   getServiceSpec(): ServiceSpec;
 }
 
 export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
-  private defBuilders = new Map<string, ServiceDefinitionBuilder>();
+  private defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
 
-  set(id: string, factory: ServiceFactoryDefinition) {
+  set(id: ServiceId, factory: ServiceFactoryDefinition) {
     const definitionBuilder = new ServiceDefinitionBuilderImpl(factory);
     this.defBuilders.set(id, definitionBuilder);
 
@@ -163,7 +165,7 @@ export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
   }
 
   getServiceSpec(): ServiceSpec {
-    const spec = new Map<string, ServiceDefinition>();
+    const spec = new Map<ServiceId, ServiceDefinition>();
     this.defBuilders.forEach((definitionBuilder, id) => {
       spec.set(id, definitionBuilder.getServiceDefinition())
     });
@@ -189,15 +191,15 @@ export class TransientContextResolver implements ContextResolver {
 }
 
 export class UnknownServiceError extends Error {
-  constructor(public readonly id: string) {
-    super(`unknown service "${id}"`);
+  constructor(public readonly id: ServiceId) {
+    super(`unknown service "${String(id)}"`);
     this.name = "UnknownServiceError";
   }
 }
 
 export class ServiceCircularReferenceError extends Error {
-  constructor(public readonly id: string, public readonly referenceChain: string[]) {
-    super(`circular dependency detected: ${referenceChain.join(" -> ")}`);
+  constructor(public readonly id: ServiceId, public readonly referenceChain: ServiceId[]) {
+    super(`circular dependency detected: ${referenceChain.map(String).join(" -> ")}`);
     this.name = "ServiceCircularReferenceError";
   }
 }
