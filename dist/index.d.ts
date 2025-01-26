@@ -4,28 +4,28 @@ export interface ContextResolver {
 }
 export type ContextResolverFunction = (container: ServiceContainer) => Context;
 export type ContextResolverDefinition = ContextResolver | ContextResolverFunction;
-export interface ServiceFactory {
-    create(container: ServiceContainer): any;
+export interface ServiceFactory<T = unknown> {
+    create(container: ServiceContainer): T;
 }
-export type ServiceFactoryFunction = (container: ServiceContainer) => any;
-export type ServiceFactoryDefinition = ServiceFactory | ServiceFactoryFunction;
-export interface ServiceInjector {
-    inject(service: any, container: ServiceContainer): void;
+export type ServiceFactoryFunction<T = unknown> = (container: ServiceContainer) => T;
+export type ServiceFactoryDefinition<T = unknown> = ServiceFactory<T> | ServiceFactoryFunction<T>;
+export interface ServiceInjector<T = unknown> {
+    inject(service: T, container: ServiceContainer): void;
 }
-export type ServiceInjectorFunction = (service: any, container: ServiceContainer) => void;
-export type ServiceInjectorDefinition = ServiceInjector | ServiceInjectorFunction;
-export interface ServiceDefinition {
-    factory: ServiceFactoryDefinition;
+export type ServiceInjectorFunction<T = unknown> = (service: T, container: ServiceContainer) => void;
+export type ServiceInjectorDefinition<T = unknown> = ServiceInjector<T> | ServiceInjectorFunction<T>;
+export interface ServiceDefinition<T = unknown> {
+    factory: ServiceFactoryDefinition<T>;
     contextResolver: ContextResolverDefinition;
-    injector?: ServiceInjectorDefinition;
+    injector?: ServiceInjectorDefinition<T>;
 }
-export type ServiceId<T = unknown> = string | symbol;
+export type ServiceId = string | symbol;
 export interface ServiceSpec {
     get(id: ServiceId): ServiceDefinition | undefined;
     has(id: ServiceId): boolean;
 }
 export interface ServiceContainer {
-    get(id: ServiceId): any;
+    get<T>(id: ServiceId): T | never;
     has(id: ServiceId): boolean;
 }
 export declare class ServiceContainerImpl implements ServiceContainer {
@@ -33,7 +33,7 @@ export declare class ServiceContainerImpl implements ServiceContainer {
     private services;
     private loading;
     constructor(spec: ServiceSpec);
-    get(id: ServiceId): any;
+    get<T>(id: ServiceId): T | never;
     has(id: ServiceId): boolean;
     private createService;
     private storeService;
@@ -41,31 +41,31 @@ export declare class ServiceContainerImpl implements ServiceContainer {
     private resolveContext;
 }
 export declare const createServiceContainer: (spec: ServiceSpec) => ServiceContainerImpl;
-export interface ServiceDefinitionBuilder {
-    shared(): ServiceDefinitionBuilder;
-    transient(): ServiceDefinitionBuilder;
-    scoped(contextResolver: ContextResolverDefinition): ServiceDefinitionBuilder;
-    withInjector(injector: ServiceInjectorDefinition): ServiceDefinitionBuilder;
-    getServiceDefinition(): ServiceDefinition;
+export interface ServiceDefinitionBuilder<T = unknown> {
+    shared(): ServiceDefinitionBuilder<T>;
+    transient(): ServiceDefinitionBuilder<T>;
+    scoped(contextResolver: ContextResolverDefinition): ServiceDefinitionBuilder<T>;
+    withInjector(injector: ServiceInjectorDefinition<T>): ServiceDefinitionBuilder<T>;
+    getServiceDefinition(): ServiceDefinition<T>;
 }
-export declare class ServiceDefinitionBuilderImpl implements ServiceDefinitionBuilder {
+export declare class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder<T> {
     private readonly factory;
     private contextResolver;
     private injector?;
-    constructor(factory: ServiceFactoryDefinition);
+    constructor(factory: ServiceFactoryDefinition<T>);
     shared(): this;
     transient(): this;
     scoped(contextResolver: ContextResolverDefinition): this;
-    withInjector(injector: ServiceInjectorDefinition): this;
-    getServiceDefinition(): ServiceDefinition;
+    withInjector(injector: ServiceInjectorDefinition<T>): this;
+    getServiceDefinition(): ServiceDefinition<T>;
 }
 export interface ServiceSpecBuilder {
-    set(id: ServiceId, factory: ServiceFactoryDefinition): void;
+    set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
     getServiceSpec(): ServiceSpec;
 }
 export declare class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     private defBuilders;
-    set(id: ServiceId, factory: ServiceFactoryDefinition): ServiceDefinitionBuilderImpl;
+    set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
     getServiceSpec(): ServiceSpec;
 }
 export declare const createServiceSpecBuilder: () => ServiceSpecBuilderImpl;
