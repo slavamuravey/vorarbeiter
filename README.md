@@ -163,3 +163,41 @@ specBuilder.set("injectorService", () => {
 });
 ```
 This way we can perform property and setter injection.
+
+#### Middlewares
+
+We can wrap service resolving in middlewares:
+
+```typescript
+const specBuilder = createServiceSpecBuilder();
+
+function middleware1(next: Next): Next {
+  return function<T>(id: ServiceId): T {
+    console.log(`middleware1 start`);
+    const service: T = next(id);
+    console.log(`middleware1 end`);
+    return service;
+  }
+}
+
+function middleware2(next: Next): Next {
+  return function<T>(id: ServiceId): T {
+    console.log(`middleware2 start`);
+    const service: T = next(id);
+    console.log(`middleware2 end`);
+    return service;
+  }
+}
+
+specBuilder.addMiddleware(middleware1, middleware2);
+
+const spec = specBuilder.getServiceSpec();
+
+serviceContainer.get("someService");
+
+// Output:
+// middleware2 start
+// middleware1 start
+// middleware1 end
+// middleware2 end
+```

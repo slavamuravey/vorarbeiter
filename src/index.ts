@@ -32,9 +32,13 @@ export interface ServiceDefinition<T = unknown> {
 
 export type ServiceId = string | symbol;
 
+export type Next<T = unknown> = <T>(id: ServiceId) => T;
+
+export type Middleware = <T = unknown>(arg: Next<T>) => Next<T>;
+
 export interface ServiceSpec {
-  get(id: ServiceId): ServiceDefinition | undefined;
-  has(id: ServiceId): boolean;
+  services: Map<ServiceId, ServiceDefinition>;
+  middlewares: Middleware[];
 }
 
 export interface ServiceContainer {
@@ -46,10 +50,20 @@ export class ServiceContainerImpl implements ServiceContainer {
   private services = new Map<ServiceId, WeakMap<Context, unknown>>();
   private loading = new Set<ServiceId>();
 
-  constructor(private readonly spec: ServiceSpec) {}
+  constructor(private readonly spec: ServiceSpec) {
+    let resolveService = this.resolveService.bind(this);
+    this.spec.middlewares.forEach(mw => {
+      resolveService = mw(resolveService);
+    });
+    this.resolveService = resolveService;
+  }
 
   get<T>(id: ServiceId): T {
-    if (!this.spec.has(id)) {
+    return this.resolveService(id);
+  }
+
+  private resolveService<T>(id: ServiceId): T {
+    if (!this.spec.services.has(id)) {
       throw new UnknownServiceError(id);
     }
 
@@ -64,7 +78,7 @@ export class ServiceContainerImpl implements ServiceContainer {
     if (this.loading.has(id)) {
       throw new ServiceCircularReferenceError(id, [...this.loading.values(), id]);
     }
-    const definition = this.spec.get(id) as ServiceDefinition<T>;
+    const definition = this.spec.services.get(id) as ServiceDefinition<T>;
     const { factory, injector } = definition;
 
     this.loading.add(id);
@@ -97,7 +111,7 @@ export class ServiceContainerImpl implements ServiceContainer {
   }
 
   private resolveContext(id: ServiceId): Context {
-    const definition = this.spec.get(id)!;
+    const definition = this.spec.services.get(id)!;
     const { contextResolver } = definition;
 
     return typeof contextResolver === "function" ? contextResolver(this) : contextResolver.resolveContext(this);
@@ -151,11 +165,13 @@ export class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder
 
 export interface ServiceSpecBuilder {
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
+  addMiddleware(...middlewares: Middleware[]): ServiceSpecBuilder;
   getServiceSpec(): ServiceSpec;
 }
 
 export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
   private defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
+  private middlewares: Middleware[] = [];
 
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T> {
     const definitionBuilder = new ServiceDefinitionBuilderImpl<T>(factory);
@@ -164,13 +180,21 @@ export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     return definitionBuilder;
   }
 
+  addMiddleware(...middlewares: Middleware[]) {
+    this.middlewares.push(...middlewares);
+    return this;
+  }
+
   getServiceSpec(): ServiceSpec {
-    const spec = new Map<ServiceId, ServiceDefinition>();
+    const services = new Map<ServiceId, ServiceDefinition>();
     this.defBuilders.forEach((definitionBuilder, id) => {
-      spec.set(id, definitionBuilder.getServiceDefinition())
+      services.set(id, definitionBuilder.getServiceDefinition())
     });
 
-    return spec;
+    return {
+      services,
+      middlewares: this.middlewares
+    };
   }
 }
 

@@ -20,9 +20,11 @@ export interface ServiceDefinition<T = unknown> {
     injector?: ServiceInjectorDefinition<T>;
 }
 export type ServiceId = string | symbol;
+export type Next<T = unknown> = <T>(id: ServiceId) => T;
+export type Middleware = <T = unknown>(arg: Next<T>) => Next<T>;
 export interface ServiceSpec {
-    get(id: ServiceId): ServiceDefinition | undefined;
-    has(id: ServiceId): boolean;
+    services: Map<ServiceId, ServiceDefinition>;
+    middlewares: Middleware[];
 }
 export interface ServiceContainer {
     get<T>(id: ServiceId): T;
@@ -34,6 +36,7 @@ export declare class ServiceContainerImpl implements ServiceContainer {
     private loading;
     constructor(spec: ServiceSpec);
     get<T>(id: ServiceId): T;
+    private resolveService;
     has(id: ServiceId): boolean;
     private createService;
     private storeService;
@@ -61,11 +64,14 @@ export declare class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitio
 }
 export interface ServiceSpecBuilder {
     set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
+    addMiddleware(...middlewares: Middleware[]): ServiceSpecBuilder;
     getServiceSpec(): ServiceSpec;
 }
 export declare class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     private defBuilders;
+    private middlewares;
     set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
+    addMiddleware(...middlewares: Middleware[]): this;
     getServiceSpec(): ServiceSpec;
 }
 export declare const createServiceSpecBuilder: () => ServiceSpecBuilderImpl;

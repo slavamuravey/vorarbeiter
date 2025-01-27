@@ -190,3 +190,32 @@ test("symbol service identifiers convert to strings correctly", () => {
     "circular dependency detected: Symbol(someService) -> Symbol(someAnotherService) -> Symbol(someService)"
   );
 });
+
+test("middlewares invoke properly", () => {
+  const specBuilder = createServiceSpecBuilder();
+  specBuilder.set("myService", () => ({ serviceName: "My service"}));
+  const milestones = [];
+  specBuilder.addMiddleware(next => {
+    return id => {
+      milestones.push(1);
+      const service = next(id);
+      milestones.push(2);
+      return service;
+    };
+  }, next => {
+    return id => {
+      milestones.push(3);
+      const service = next(id);
+      milestones.push(4);
+      return service;
+    };
+  });
+
+  const spec = specBuilder.getServiceSpec();
+
+  const serviceContainer = createServiceContainer(spec);
+
+  serviceContainer.get("myService");
+
+  assert.deepEqual(milestones, [3, 1, 2, 4]);
+});

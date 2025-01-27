@@ -9,10 +9,18 @@
             this.spec = spec;
             this.services = new Map();
             this.loading = new Set();
+            let resolveService = this.resolveService.bind(this);
+            this.spec.middlewares.forEach(mw => {
+                resolveService = mw(resolveService);
+            });
+            this.resolveService = resolveService;
         }
         get(id) {
+            return this.resolveService(id);
+        }
+        resolveService(id) {
             var _a;
-            if (!this.spec.has(id)) {
+            if (!this.spec.services.has(id)) {
                 throw new UnknownServiceError(id);
             }
             return (_a = this.retrieveService(id)) !== null && _a !== void 0 ? _a : this.createService(id);
@@ -24,7 +32,7 @@
             if (this.loading.has(id)) {
                 throw new ServiceCircularReferenceError(id, [...this.loading.values(), id]);
             }
-            const definition = this.spec.get(id);
+            const definition = this.spec.services.get(id);
             const { factory, injector } = definition;
             this.loading.add(id);
             const service = typeof factory === "function" ? factory(this) : factory.create(this);
@@ -48,7 +56,7 @@
             return (_a = this.services.get(id)) === null || _a === void 0 ? void 0 : _a.get(ctx);
         }
         resolveContext(id) {
-            const definition = this.spec.get(id);
+            const definition = this.spec.services.get(id);
             const { contextResolver } = definition;
             return typeof contextResolver === "function" ? contextResolver(this) : contextResolver.resolveContext(this);
         }
@@ -86,18 +94,26 @@
     class ServiceSpecBuilderImpl {
         constructor() {
             this.defBuilders = new Map();
+            this.middlewares = [];
         }
         set(id, factory) {
             const definitionBuilder = new ServiceDefinitionBuilderImpl(factory);
             this.defBuilders.set(id, definitionBuilder);
             return definitionBuilder;
         }
+        addMiddleware(...middlewares) {
+            this.middlewares.push(...middlewares);
+            return this;
+        }
         getServiceSpec() {
-            const spec = new Map();
+            const services = new Map();
             this.defBuilders.forEach((definitionBuilder, id) => {
-                spec.set(id, definitionBuilder.getServiceDefinition());
+                services.set(id, definitionBuilder.getServiceDefinition());
             });
-            return spec;
+            return {
+                services,
+                middlewares: this.middlewares
+            };
         }
     }
     const createServiceSpecBuilder = () => new ServiceSpecBuilderImpl();
