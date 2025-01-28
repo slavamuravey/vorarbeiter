@@ -14,9 +14,25 @@ export interface ServiceInjector<T = unknown> {
 }
 export type ServiceInjectorFunction<T = unknown> = (service: T, container: ServiceContainer) => void;
 export type ServiceInjectorDefinition<T = unknown> = ServiceInjector<T> | ServiceInjectorFunction<T>;
-export interface ServiceDefinition<T = unknown> {
-    factory: ServiceFactoryDefinition<T>;
+export declare enum ServiceType {
+    Shared = "shared",
+    Transient = "transient",
+    Scoped = "scoped"
+}
+export interface ServiceTypeDefinitionShared {
+    name: ServiceType.Shared;
+}
+export interface ServiceTypeDefinitionTransient {
+    name: ServiceType.Transient;
+}
+export interface ServiceTypeDefinitionScoped {
+    name: ServiceType.Scoped;
     contextResolver: ContextResolverDefinition;
+}
+export type ServiceTypeDefinition = ServiceTypeDefinitionShared | ServiceTypeDefinitionTransient | ServiceTypeDefinitionScoped;
+export interface ServiceDefinition<T = unknown> {
+    type: ServiceTypeDefinition;
+    factory: ServiceFactoryDefinition<T>;
     injector?: ServiceInjectorDefinition<T>;
 }
 export type ServiceId = string | symbol;
@@ -37,10 +53,12 @@ export declare class ServiceContainerImpl implements ServiceContainer {
     constructor(spec: ServiceSpec);
     get<T>(id: ServiceId): T;
     private resolveService;
+    private resolveServiceShared;
+    private resolveServiceTransient;
+    private resolveServiceScoped;
     has(id: ServiceId): boolean;
     private createService;
-    private storeService;
-    private retrieveService;
+    private executeInjection;
     private resolveContext;
 }
 export declare const createServiceContainer: (spec: ServiceSpec) => ServiceContainerImpl;
@@ -53,7 +71,7 @@ export interface ServiceDefinitionBuilder<T = unknown> {
 }
 export declare class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder<T> {
     private readonly factory;
-    private contextResolver;
+    private type;
     private injector?;
     constructor(factory: ServiceFactoryDefinition<T>);
     shared(): this;
@@ -75,13 +93,6 @@ export declare class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     getServiceSpec(): ServiceSpec;
 }
 export declare const createServiceSpecBuilder: () => ServiceSpecBuilderImpl;
-export declare class SharedContextResolver implements ContextResolver {
-    context: any;
-    resolveContext(container: ServiceContainer): Context;
-}
-export declare class TransientContextResolver implements ContextResolver {
-    resolveContext(container: ServiceContainer): Context;
-}
 export declare class UnknownServiceError extends Error {
     readonly id: ServiceId;
     constructor(id: ServiceId);

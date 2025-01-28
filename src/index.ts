@@ -24,9 +24,33 @@ export type ServiceInjectorFunction<T = unknown> = (service: T, container: Servi
 
 export type ServiceInjectorDefinition<T = unknown> = ServiceInjector<T> | ServiceInjectorFunction<T>;
 
-export interface ServiceDefinition<T = unknown> {
-  factory: ServiceFactoryDefinition<T>;
+export enum ServiceType {
+  Shared = "shared",
+  Transient = "transient",
+  Scoped = "scoped"
+}
+
+export interface ServiceTypeDefinitionShared {
+  name: ServiceType.Shared;
+}
+
+export interface ServiceTypeDefinitionTransient {
+  name: ServiceType.Transient;
+}
+
+export interface ServiceTypeDefinitionScoped {
+  name: ServiceType.Scoped;
   contextResolver: ContextResolverDefinition;
+}
+
+export type ServiceTypeDefinition =
+  | ServiceTypeDefinitionShared
+  | ServiceTypeDefinitionTransient
+  | ServiceTypeDefinitionScoped;
+
+export interface ServiceDefinition<T = unknown> {
+  type: ServiceTypeDefinition;
+  factory: ServiceFactoryDefinition<T>;
   injector?: ServiceInjectorDefinition<T>;
 }
 
@@ -47,7 +71,7 @@ export interface ServiceContainer {
 }
 
 export class ServiceContainerImpl implements ServiceContainer {
-  private services = new Map<ServiceId, WeakMap<Context, unknown>>();
+  private services = new Map<ServiceId, WeakMap<Context, unknown> | unknown>();
   private loading = new Set<ServiceId>();
 
   constructor(private readonly spec: ServiceSpec) {
@@ -67,7 +91,52 @@ export class ServiceContainerImpl implements ServiceContainer {
       throw new UnknownServiceError(id);
     }
 
-    return this.retrieveService<T>(id) ?? this.createService<T>(id);
+    const definition = this.spec.services.get(id) as ServiceDefinition<T>;
+    switch (definition.type.name) {
+      case ServiceType.Transient:
+        return this.resolveServiceTransient(id);
+      case ServiceType.Scoped:
+        return this.resolveServiceScoped(id);
+      case ServiceType.Shared:
+        return this.resolveServiceShared(id);
+    }
+  }
+
+  private resolveServiceShared<T>(id: ServiceId): T {
+    if (this.services.has(id)) {
+      return this.services.get(id) as T;
+    }
+
+    const service = this.createService<T>(id);
+    this.services.set(id, service);
+    this.executeInjection(id, service);
+
+    return service;
+  }
+
+  private resolveServiceTransient<T>(id: ServiceId): T {
+    const service = this.createService<T>(id);
+    this.executeInjection(id, service);
+
+    return service;
+  }
+
+  private resolveServiceScoped<T>(id: ServiceId): T {
+    const ctx = this.resolveContext(id);
+    if (!this.services.has(id)) {
+      this.services.set(id, new WeakMap());
+    }
+
+    const ctxMap = this.services.get(id) as WeakMap<Context, T>;
+    if (ctxMap.has(ctx)) {
+      return ctxMap.get(ctx)!;
+    }
+
+    const service = this.createService<T>(id);
+    ctxMap.set(ctx, service);
+    this.executeInjection(id, service);
+
+    return service;
   }
 
   has(id: ServiceId): boolean {
@@ -79,40 +148,26 @@ export class ServiceContainerImpl implements ServiceContainer {
       throw new ServiceCircularReferenceError(id, [...this.loading.values(), id]);
     }
     const definition = this.spec.services.get(id) as ServiceDefinition<T>;
-    const { factory, injector } = definition;
+    const { factory } = definition;
 
     this.loading.add(id);
     const service = typeof factory === "function" ? factory(this) : factory.create(this);
     this.loading.delete(id);
 
-    this.storeService<T>(id, service);
-
-    if (injector) {
-      typeof injector === "function" ? injector(service, this) : injector.inject(service, this);
-    }
-
     return service;
   }
 
-  private storeService<T>(id: ServiceId, service: T) {
-    const ctx = this.resolveContext(id);
-
-    if (!this.services.has(id)) {
-      this.services.set(id, new WeakMap());
+  private executeInjection<T>(id: ServiceId, service: T) {
+    const definition = this.spec.services.get(id) as ServiceDefinition<T>;
+    const { injector } = definition;
+    if (injector) {
+      typeof injector === "function" ? injector(service, this) : injector.inject(service, this);
     }
-
-    this.services.get(id)!.set(ctx, service);
-  }
-
-  private retrieveService<T>(id: ServiceId): T | undefined {
-    const ctx = this.resolveContext(id);
-
-    return (this.services.get(id) as WeakMap<Context, T>)?.get(ctx);
   }
 
   private resolveContext(id: ServiceId): Context {
     const definition = this.spec.services.get(id)!;
-    const { contextResolver } = definition;
+    const { contextResolver } = definition.type as ServiceTypeDefinitionScoped;
 
     return typeof contextResolver === "function" ? contextResolver(this) : contextResolver.resolveContext(this);
   }
@@ -129,23 +184,25 @@ export interface ServiceDefinitionBuilder<T = unknown> {
 }
 
 export class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder<T> {
-  private contextResolver: ContextResolverDefinition = new SharedContextResolver();
+  private type!: ServiceTypeDefinition;
   private injector?: ServiceInjectorDefinition<T>;
 
-  constructor(private readonly factory: ServiceFactoryDefinition<T>) {}
+  constructor(private readonly factory: ServiceFactoryDefinition<T>) {
+    this.shared();
+  }
 
   shared() {
-    this.scoped(new SharedContextResolver());
+    this.type = { name: ServiceType.Shared };
     return this;
   }
 
   transient() {
-    this.scoped(new TransientContextResolver());
+    this.type = { name: ServiceType.Transient };
     return this;
   }
 
   scoped(contextResolver: ContextResolverDefinition) {
-    this.contextResolver = contextResolver;
+    this.type = { name: ServiceType.Scoped, contextResolver };
     return this;
   }
 
@@ -156,8 +213,8 @@ export class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder
 
   getServiceDefinition(): ServiceDefinition<T> {
     return {
+      type: this.type,
       factory: this.factory,
-      contextResolver: this.contextResolver,
       injector: this.injector
     };
   }
@@ -199,20 +256,6 @@ export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
 }
 
 export const createServiceSpecBuilder = () => new ServiceSpecBuilderImpl();
-
-export class SharedContextResolver implements ContextResolver {
-  context = Object.create(null);
-
-  resolveContext(container: ServiceContainer): Context {
-    return this.context;
-  }
-}
-
-export class TransientContextResolver implements ContextResolver {
-  resolveContext(container: ServiceContainer): Context {
-    return Object.create(null);
-  }
-}
 
 export class UnknownServiceError extends Error {
   constructor(public readonly id: ServiceId) {
