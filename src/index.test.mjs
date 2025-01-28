@@ -45,7 +45,7 @@ test("shared service instances are the same", () => {
   assert.strictEqual(myServiceInstance1, myServiceInstance2);
 });
 
-describe("shared service instances", () => {
+describe("scoped service instances", () => {
   const ctx1 = Object.create(null);
   const ctx2 = Object.create(null);
   let ctx;
