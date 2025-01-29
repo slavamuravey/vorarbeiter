@@ -142,7 +142,7 @@ let scopedService1;
 // true
 ```
 
-#### Injection after service creation
+### Injection after service creation
 
 The most common type of injection is constructor injection. 
 This type of injection occurs when creating service.
@@ -164,7 +164,7 @@ specBuilder.set("injectorService", () => {
 ```
 This way we can perform property and setter injection.
 
-#### Middlewares
+### Middlewares
 
 We can wrap service resolving in middlewares:
 
