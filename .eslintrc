@@ -1,0 +1,87 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["simple-import-sort"],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
+  },
+  "rules": {
+    "simple-import-sort/imports": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "none",
+        "printWidth": 120,
+        "arrowParens": "avoid",
+        "endOfLine": "auto"
+      }
+    ],
+    "curly": ["error", "all"],
+    "import/no-unresolved": "off",
+    "import/no-named-as-default": 0,
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "ts": "never"
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "no-shadow": "off",
+    "no-empty-function": "off",
+    "no-useless-constructor": "off",
+    "class-methods-use-this": "off",
+    "max-classes-per-file": "off",
+    "consistent-return": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "parser": "espree"
+    },
+    {
+      "files": ["*.mjs"],
+      "parser": "espree",
+      "settings": {
+        "import/resolver": {
+          "node": {
+            "extensions": [".mjs", ".js"]
+          }
+        }
+      },
+      "rules": {
+        "import/extensions": [
+          "error",
+          "ignorePackages",
+          {
+            "js": "always",
+            "mjs": "always"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"]
+    }
+  ]
+}

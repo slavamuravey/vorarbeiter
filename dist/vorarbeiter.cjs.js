@@ -27,6 +27,7 @@ class ServiceContainerImpl {
             throw new UnknownServiceError(id);
         }
         const definition = this.spec.services.get(id);
+        // eslint-disable-next-line default-case
         switch (definition.type.name) {
             case exports.ServiceType.Transient:
                 return this.resolveServiceTransient(id);
@@ -81,9 +82,14 @@ class ServiceContainerImpl {
     executeInjection(id, service) {
         const definition = this.spec.services.get(id);
         const { injector } = definition;
-        if (injector) {
-            typeof injector === "function" ? injector(service, this) : injector.inject(service, this);
+        if (!injector) {
+            return;
         }
+        if (typeof injector === "function") {
+            injector(service, this);
+            return;
+        }
+        injector.inject(service, this);
     }
     resolveContext(id) {
         const definition = this.spec.services.get(id);

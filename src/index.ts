@@ -72,6 +72,7 @@ export interface ServiceContainer {
 
 export class ServiceContainerImpl implements ServiceContainer {
   private services = new Map<ServiceId, WeakMap<Context, unknown> | unknown>();
+
   private loading = new Set<ServiceId>();
 
   constructor(private readonly spec: ServiceSpec) {
@@ -92,6 +93,7 @@ export class ServiceContainerImpl implements ServiceContainer {
     }
 
     const definition = this.spec.services.get(id) as ServiceDefinition<T>;
+    // eslint-disable-next-line default-case
     switch (definition.type.name) {
       case ServiceType.Transient:
         return this.resolveServiceTransient(id);
@@ -160,9 +162,17 @@ export class ServiceContainerImpl implements ServiceContainer {
   private executeInjection<T>(id: ServiceId, service: T) {
     const definition = this.spec.services.get(id) as ServiceDefinition<T>;
     const { injector } = definition;
-    if (injector) {
-      typeof injector === "function" ? injector(service, this) : injector.inject(service, this);
+    if (!injector) {
+      return;
     }
+
+    if (typeof injector === "function") {
+      injector(service, this);
+
+      return;
+    }
+
+    injector.inject(service, this);
   }
 
   private resolveContext(id: ServiceId): Context {
@@ -185,6 +195,7 @@ export interface ServiceDefinitionBuilder<T = unknown> {
 
 export class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder<T> {
   private type!: ServiceTypeDefinition;
+
   private injector?: ServiceInjectorDefinition<T>;
 
   constructor(private readonly factory: ServiceFactoryDefinition<T>) {
@@ -228,6 +239,7 @@ export interface ServiceSpecBuilder {
 
 export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
   private defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
+
   private middlewares: Middleware[] = [];
 
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T> {
@@ -245,7 +257,7 @@ export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
   getServiceSpec(): ServiceSpec {
     const services = new Map<ServiceId, ServiceDefinition>();
     this.defBuilders.forEach((definitionBuilder, id) => {
-      services.set(id, definitionBuilder.getServiceDefinition())
+      services.set(id, definitionBuilder.getServiceDefinition());
     });
 
     return {
@@ -265,7 +277,10 @@ export class UnknownServiceError extends Error {
 }
 
 export class ServiceCircularReferenceError extends Error {
-  constructor(public readonly id: ServiceId, public readonly referenceChain: ServiceId[]) {
+  constructor(
+    public readonly id: ServiceId,
+    public readonly referenceChain: ServiceId[]
+  ) {
     super(`circular dependency detected: ${referenceChain.map(String).join(" -> ")}`);
     this.name = "ServiceCircularReferenceError";
   }

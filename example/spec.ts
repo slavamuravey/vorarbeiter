@@ -1,10 +1,11 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+
 import { Context, ContextResolverDefinition, createServiceSpecBuilder } from "../dist";
+import { Next, ServiceId } from "../src";
 import { CarFactory } from "./factory/car";
+import { HeadTail } from "./service/head-tail";
 import { DriverImpl } from "./service/impl/driver";
 import { InjectorImpl } from "./service/impl/injector";
-import { HeadTail } from "./service/head-tail";
-import { Next, ServiceId } from "../src";
 
 const contextResolver: ContextResolverDefinition = container =>
   (container.get("ctx") as AsyncLocalStorage<Context>).getStore()!;
@@ -12,21 +13,21 @@ const contextResolver: ContextResolverDefinition = container =>
 const specBuilder = createServiceSpecBuilder();
 
 function middleware1(next: Next): Next {
-  return function<T>(id: ServiceId): T {
+  return function <T>(id: ServiceId): T {
     console.log(`[${String(id)}] middleware1 start`);
     const service: T = next(id);
     console.log(`[${String(id)}] middleware1 end`);
     return service;
-  }
+  };
 }
 
 function middleware2(next: Next): Next {
-  return function<T>(id: ServiceId): T {
+  return function <T>(id: ServiceId): T {
     console.log(`[${String(id)}] middleware2 start`);
     const service: T = next(id);
     console.log(`[${String(id)}] middleware2 end`);
     return service;
-  }
+  };
 }
 
 specBuilder.set(Symbol.for("car"), new CarFactory());
@@ -36,15 +37,17 @@ specBuilder.set("ctx", () => new AsyncLocalStorage<Context>());
 specBuilder
   .set("injectorService", () => new InjectorImpl())
   .withInjector((service, container) => {
+    // eslint-disable-next-line no-param-reassign
     service.car = container.get(Symbol.for("car"));
     service.setDriver(container.get("driver"));
   });
 
-specBuilder.set("head", (container) => ({ head: "head", tail: (container.get("tail") as HeadTail).tail }));
+specBuilder.set("head", container => ({ head: "head", tail: (container.get("tail") as HeadTail).tail }));
 specBuilder
   .set("tail", (): HeadTail => ({ head: undefined, tail: "tail" }))
   .withInjector((service, container) => {
     const head: HeadTail = container.get("head");
+    // eslint-disable-next-line no-param-reassign
     service.head = head.head;
   });
 

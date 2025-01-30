@@ -1,8 +1,9 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { spec } from "./spec";
+
 import { Context, createServiceContainer } from "../dist";
 import { Car } from "./service/car";
 import { Injector } from "./service/injector";
+import { spec } from "./spec";
 
 const serviceContainer = createServiceContainer(spec);
 

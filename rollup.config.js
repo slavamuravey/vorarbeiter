@@ -4,7 +4,7 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const createConfig = format => {
   const name = "vorarbeiter";
-  let formatSuffix = { es: "esm", umd: "umd", cjs: "cjs" }[format];
+  const formatSuffix = { es: "esm", umd: "umd", cjs: "cjs" }[format];
 
   const config = {
     input: "es/index.js",
@@ -14,9 +14,7 @@ const createConfig = format => {
       name,
       sourcemap: true
     },
-    plugins: [
-      isProduction && terser(),
-    ]
+    plugins: [isProduction && terser()]
   };
 
   if (format === "cjs") {
@@ -26,8 +24,4 @@ const createConfig = format => {
   return config;
 };
 
-export default [
-  createConfig("cjs"),
-  createConfig("es"),
-  createConfig("umd"),
-];
+export default [createConfig("cjs"), createConfig("es"), createConfig("umd")];

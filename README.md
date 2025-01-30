@@ -142,6 +142,24 @@ let scopedService1;
 // true
 ```
 
+#### Transient
+
+Sometimes we need get new instance of a service each time we get it. 
+To do this, we should make the service as _transient_.
+
+Example:
+
+```typescript
+const specBuilder = createServiceSpecBuilder();
+specBuilder.set("myService", () => ({ serviceName: "My service" })).transient();
+
+const spec = specBuilder.getServiceSpec();
+
+const serviceContainer = createServiceContainer(spec);
+
+console.log(serviceContainer.get("myService") === serviceContainer.get("myService")); // false
+```
+
 ### Injection after service creation
 
 The most common type of injection is constructor injection. 

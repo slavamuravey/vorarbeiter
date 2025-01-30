@@ -1,6 +1,6 @@
 import type { ServiceContainer, ServiceFactory } from "../../dist";
-import { CarImpl } from "../service/impl/car";
 import { Driver } from "../service/driver";
+import { CarImpl } from "../service/impl/car";
 
 export class CarFactory implements ServiceFactory {
   create(container: ServiceContainer): CarImpl {
