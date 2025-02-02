@@ -181,4 +181,3 @@ specBuilder.set("injectorService", () => {
 });
 ```
 This way we can perform property and setter injection.
-```
