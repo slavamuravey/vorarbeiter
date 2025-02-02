@@ -12,24 +12,6 @@ const contextResolver: ContextResolverDefinition = container =>
 
 const specBuilder = createServiceSpecBuilder();
 
-function middleware1(next: Next): Next {
-  return function <T>(id: ServiceId): T {
-    console.log(`[${String(id)}] middleware1 start`);
-    const service: T = next(id);
-    console.log(`[${String(id)}] middleware1 end`);
-    return service;
-  };
-}
-
-function middleware2(next: Next): Next {
-  return function <T>(id: ServiceId): T {
-    console.log(`[${String(id)}] middleware2 start`);
-    const service: T = next(id);
-    console.log(`[${String(id)}] middleware2 end`);
-    return service;
-  };
-}
-
 specBuilder.set(Symbol.for("car"), new CarFactory());
 specBuilder.set("driver", () => new DriverImpl());
 specBuilder.set("myScopedService", () => ({ serviceName: "Awesome service" })).scoped(contextResolver);
@@ -50,8 +32,6 @@ specBuilder
     // eslint-disable-next-line no-param-reassign
     service.head = head.head;
   });
-
-// specBuilder.addMiddleware(middleware1, middleware2);
 
 const spec = specBuilder.getServiceSpec();
 

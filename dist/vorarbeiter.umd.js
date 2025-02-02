@@ -15,16 +15,8 @@
             this.spec = spec;
             this.services = new Map();
             this.loading = new Set();
-            let resolveService = this.resolveService.bind(this);
-            this.spec.middlewares.forEach(mw => {
-                resolveService = mw(resolveService);
-            });
-            this.resolveService = resolveService;
         }
         get(id) {
-            return this.resolveService(id);
-        }
-        resolveService(id) {
             if (!this.spec.services.has(id)) {
                 throw new UnknownServiceError(id);
             }
@@ -132,16 +124,11 @@
     class ServiceSpecBuilderImpl {
         constructor() {
             this.defBuilders = new Map();
-            this.middlewares = [];
         }
         set(id, factory) {
             const definitionBuilder = new ServiceDefinitionBuilderImpl(factory);
             this.defBuilders.set(id, definitionBuilder);
             return definitionBuilder;
-        }
-        addMiddleware(...middlewares) {
-            this.middlewares.push(...middlewares);
-            return this;
         }
         getServiceSpec() {
             const services = new Map();
@@ -149,8 +136,7 @@
                 services.set(id, definitionBuilder.getServiceDefinition());
             });
             return {
-                services,
-                middlewares: this.middlewares
+                services
             };
         }
     }

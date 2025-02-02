@@ -56,13 +56,8 @@ export interface ServiceDefinition<T = unknown> {
 
 export type ServiceId = string | symbol;
 
-export type Next<T = unknown> = <T>(id: ServiceId) => T;
-
-export type Middleware = <T = unknown>(arg: Next<T>) => Next<T>;
-
 export interface ServiceSpec {
   services: Map<ServiceId, ServiceDefinition>;
-  middlewares: Middleware[];
 }
 
 export interface ServiceContainer {
@@ -75,19 +70,9 @@ export class ServiceContainerImpl implements ServiceContainer {
 
   private loading = new Set<ServiceId>();
 
-  constructor(private readonly spec: ServiceSpec) {
-    let resolveService = this.resolveService.bind(this);
-    this.spec.middlewares.forEach(mw => {
-      resolveService = mw(resolveService);
-    });
-    this.resolveService = resolveService;
-  }
+  constructor(private readonly spec: ServiceSpec) {}
 
   get<T>(id: ServiceId): T {
-    return this.resolveService(id);
-  }
-
-  private resolveService<T>(id: ServiceId): T {
     if (!this.spec.services.has(id)) {
       throw new UnknownServiceError(id);
     }
@@ -233,25 +218,17 @@ export class ServiceDefinitionBuilderImpl<T> implements ServiceDefinitionBuilder
 
 export interface ServiceSpecBuilder {
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
-  addMiddleware(...middlewares: Middleware[]): ServiceSpecBuilder;
   getServiceSpec(): ServiceSpec;
 }
 
 export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
   private defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
 
-  private middlewares: Middleware[] = [];
-
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T> {
     const definitionBuilder = new ServiceDefinitionBuilderImpl<T>(factory);
     this.defBuilders.set(id, definitionBuilder as ServiceDefinitionBuilder);
 
     return definitionBuilder;
-  }
-
-  addMiddleware(...middlewares: Middleware[]) {
-    this.middlewares.push(...middlewares);
-    return this;
   }
 
   getServiceSpec(): ServiceSpec {
@@ -261,8 +238,7 @@ export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
     });
 
     return {
-      services,
-      middlewares: this.middlewares
+      services
     };
   }
 }
