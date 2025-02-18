@@ -66,9 +66,9 @@ export interface ServiceContainer {
 }
 
 export class ServiceContainerImpl implements ServiceContainer {
-  private services = new Map<ServiceId, WeakMap<Context, unknown> | unknown>();
+  private readonly services = new Map<ServiceId, WeakMap<Context, unknown> | unknown>();
 
-  private loading = new Set<ServiceId>();
+  private readonly loading = new Set<ServiceId>();
 
   constructor(private readonly spec: ServiceSpec) {}
 
@@ -222,7 +222,7 @@ export interface ServiceSpecBuilder {
 }
 
 export class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
-  private defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
+  private readonly defBuilders = new Map<ServiceId, ServiceDefinitionBuilder>();
 
   set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T> {
     const definitionBuilder = new ServiceDefinitionBuilderImpl<T>(factory);

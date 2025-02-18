@@ -45,8 +45,8 @@ export interface ServiceContainer {
 }
 export declare class ServiceContainerImpl implements ServiceContainer {
     private readonly spec;
-    private services;
-    private loading;
+    private readonly services;
+    private readonly loading;
     constructor(spec: ServiceSpec);
     get<T>(id: ServiceId): T;
     private resolveServiceShared;
@@ -81,7 +81,7 @@ export interface ServiceSpecBuilder {
     getServiceSpec(): ServiceSpec;
 }
 export declare class ServiceSpecBuilderImpl implements ServiceSpecBuilder {
-    private defBuilders;
+    private readonly defBuilders;
     set<T>(id: ServiceId, factory: ServiceFactoryDefinition<T>): ServiceDefinitionBuilder<T>;
     getServiceSpec(): ServiceSpec;
 }
