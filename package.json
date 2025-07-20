@@ -6,13 +6,13 @@
   "source": "src/index.ts",
   "exports": {
     "require": "./dist/index.js",
-    "import": "./es/index.js",
-    "umd": "./dist/vorarbeiter.umd.min.js"
+    "import": "./dist/vorarbeiter.esm.js",
+    "umd": "./dist/vorarbeiter.umd.js"
   },
   "main": "dist/index.js",
   "umd:main": "dist/vorarbeiter.umd.min.js",
   "unpkg": "dist/vorarbeiter.umd.min.js",
-  "module": "es/index.js",
+  "module": "dist/vorarbeiter.esm.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "scripts": {
