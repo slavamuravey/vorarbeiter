@@ -14,6 +14,7 @@
   "unpkg": "dist/vorarbeiter.umd.min.js",
   "module": "es/index.js",
   "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "build": "npm run build:es && npm run build:dist && npm run build:types",
     "build:dist": "npm run build:dist:dev && npm run build:dist:prod",
