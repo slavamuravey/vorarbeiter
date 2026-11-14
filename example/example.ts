@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { Context, createServiceContainer } from "../dist";
+import { Context, createServiceContainer } from "../src";
 import { Car } from "./service/car";
 import { Injector } from "./service/injector";
 import { spec } from "./spec";
