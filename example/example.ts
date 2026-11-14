@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { AsyncLocalStorage } from "node:async_hooks";
 
 import { Context, createServiceContainer } from "../dist";

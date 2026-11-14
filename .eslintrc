@@ -5,7 +5,7 @@
     "node": true
   },
   "extends": [
-    "airbnb",
+    "airbnb-base",
     "plugin:prettier/recommended"
   ],
   "parserOptions": {
