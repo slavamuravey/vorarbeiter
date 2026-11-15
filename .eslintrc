@@ -50,7 +50,16 @@
     "no-useless-constructor": "off",
     "class-methods-use-this": "off",
     "max-classes-per-file": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": [
+          "**/*.test.{js,ts,jsx,tsx}",
+          "**/*.spec.{js,ts,jsx,tsx}"
+        ]
+      }
+    ]
   },
   "overrides": [
     {
