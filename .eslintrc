@@ -56,7 +56,8 @@
       {
         "devDependencies": [
           "**/*.test.{js,ts,jsx,tsx}",
-          "**/*.spec.{js,ts,jsx,tsx}"
+          "**/*.spec.{js,ts,jsx,tsx}",
+          "rollup.config.js"
         ]
       }
     ]
