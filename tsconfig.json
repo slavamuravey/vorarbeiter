@@ -12,7 +12,6 @@
     "noImplicitAny": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "declaration": true,
     "newLine": "lf"
   },
   "include": [
