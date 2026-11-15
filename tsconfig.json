@@ -16,7 +16,7 @@
     "newLine": "lf"
   },
   "include": [
-    "src"
+    "src/index.ts"
   ]
 }
 
