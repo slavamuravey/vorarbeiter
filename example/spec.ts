@@ -1,7 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { Context, ContextResolverDefinition, createServiceSpecBuilder } from "../dist";
-import { Next, ServiceId } from "../src";
+import { Context, ContextResolverDefinition, createServiceSpecBuilder } from "../src";
 import { CarFactory } from "./factory/car";
 import { HeadTail } from "./service/head-tail";
 import { DriverImpl } from "./service/impl/driver";
