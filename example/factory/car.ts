@@ -1,4 +1,4 @@
-import type { ServiceContainer, ServiceFactory } from "../../dist";
+import type { ServiceContainer, ServiceFactory } from "../../src";
 import { Driver } from "../service/driver";
 import { CarImpl } from "../service/impl/car";
 
