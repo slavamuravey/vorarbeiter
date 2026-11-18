@@ -3,6 +3,10 @@
   "version": "8.0.0",
   "homepage": "https://github.com/slavamuravey/vorarbeiter",
   "description": "A simple service container",
+  "engines": {
+    "node": ">=22.21.0"
+  },
+  "packageManager": "npm@11.20.0",
   "source": "src/index.ts",
   "main": "dist/vorarbeiter.cjs.js",
   "umd:main": "dist/vorarbeiter.umd.min.js",
